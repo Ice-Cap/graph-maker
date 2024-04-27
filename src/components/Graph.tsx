@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import GraphMaker from '../utils/GraphMaker.ts';
 import { cloneObject } from '../utils/utils';
-import { GraphObj, GraphState } from '../types/graphTypes.ts';
+import { GraphObj } from '../types/graphTypes.ts';
 
 const graph: GraphObj = {
     'A': {
@@ -23,6 +23,13 @@ const graph: GraphObj = {
 
 let alphabetIteration = 0;
 
+interface GraphState {
+    nodeGrabbed: string | null;
+    graph: GraphObj;
+    start: string;
+}
+
+type ClickMode = 'add' | 'connect';
 /**
  * This will render a graph with nodes and edges.
  */
@@ -32,6 +39,7 @@ function Graph() {
         graph: graph,
         start: 'H'
     });
+    const [clickMode, setClickMode] = useState<ClickMode>('add');
     const [windowSize, setWindowSize] = useState<[number, number]>([window.innerWidth, window.innerHeight]);
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -126,6 +134,10 @@ function Graph() {
         });
     }
 
+    /**
+     * This will handle adding a new node.
+     * Or attach two nodes.
+     */
     function handleClick(e: React.MouseEvent<HTMLCanvasElement>) {
         if (!canvasRef.current) {
             return;
@@ -183,8 +195,24 @@ function Graph() {
         return current;
     }
 
+    const addButtonClasses = clickMode === 'add' ? 'selected' : '';
+    const connectButtonClasses = clickMode === 'connect' ? 'selected' : '';
     return (
-        <div className='algo search'>
+        <div>
+            <div className="button-container">
+                <button
+                    className={addButtonClasses}
+                    onClick={() => setClickMode('add')}
+                >
+                    Add nodes
+                </button>
+                <button
+                    className={connectButtonClasses}
+                    onClick={() => setClickMode('connect')}
+                >
+                    Connect nodes
+                </button>
+            </div>
             <div className='flex align-center justify-center'>
                 <canvas
                     onClick={handleClick}
