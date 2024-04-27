@@ -3,6 +3,26 @@ import GraphMaker from '../utils/GraphMaker.ts';
 import { cloneObject } from '../utils/utils';
 import { GraphObj, GraphState } from '../types/graphTypes.ts';
 
+const graph: GraphObj = {
+    'A': {
+        x: 80,
+        y: 0,
+        neighbors: ['B', 'C']
+    },
+    'B': {
+        x: 160,
+        y: 50,
+        neighbors: ['A']
+    },
+    'C': {
+        x: 0,
+        y: 50,
+        neighbors: ['A']
+    }
+};
+
+let alphabetIteration = 0;
+
 /**
  * This will render a graph with nodes and edges.
  */
@@ -12,7 +32,20 @@ function Graph() {
         graph: graph,
         start: 'H'
     });
+    const [windowSize, setWindowSize] = useState<[number, number]>([window.innerWidth, window.innerHeight]);
     const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    /**
+     * This will update the window size state on resize.
+     */
+    useEffect(() => {
+        function handleResize() {
+            setWindowSize([window.innerWidth, window.innerHeight]);
+        }
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         if (!canvasRef || !canvasRef.current) {
@@ -93,16 +126,74 @@ function Graph() {
         });
     }
 
+    function handleClick(e: React.MouseEvent<HTMLCanvasElement>) {
+        if (!canvasRef.current) {
+            return;
+        }
+
+        const rect = canvasRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        setState((prev) => {
+            const temp = cloneObject(prev);
+            const nextKey = getNextKey(temp);
+            temp.graph[nextKey] = {
+                x: x,
+                y: y,
+                neighbors: []
+            };
+
+            return temp;
+        });
+    }
+
+    /**
+     * This will calculate the next key for a new node.
+     */
+    function getNextKey(state: GraphState) {
+        const keysArray = Object.keys(state.graph);
+        const lastKey = keysArray[keysArray.length - 1];
+        return getNextCharacter(lastKey);
+    }
+
+    /**
+     * This will get the next character in the alphabet.
+     * After each iteration, it will loop back to 'A' and add a number
+     * such as 'A1' and contunue to 'B1', 'C1', etc. until it loops again.
+     */
+    function getNextCharacter(current: string) {
+        const baseChar = 'A'.charCodeAt(0);
+        const maxChar = 26;
+
+        if (current.includes('Z')) {
+            alphabetIteration += 1;
+            return `A${alphabetIteration}`;
+        } else if (current.length === 1) {
+            let nextCharCode = current.charCodeAt(0) + 1;
+            if (nextCharCode - baseChar < maxChar) {
+                return String.fromCharCode(nextCharCode);
+            }
+        } else {
+            let [letter, num] = current.split(/(\d+)/);
+            letter = String.fromCharCode(letter.charCodeAt(0) + 1);
+            return `${letter}${num}`;
+        }
+
+        return current;
+    }
+
     return (
         <div className='algo search'>
             <div className='flex align-center justify-center'>
                 <canvas
+                    onClick={handleClick}
                     onMouseDown={handleGrab}
                     onMouseUp={() => setState((prev) => ({ ...prev, nodeGrabbed: null }))}
                     onMouseMove={handleDrag}
                     ref={canvasRef}
-                    width="500"
-                    height="500"
+                    width={windowSize[0] - 100}
+                    height={windowSize[1] - 200}
                 />
             </div>
         </div>
@@ -110,21 +201,3 @@ function Graph() {
 }
 
 export default Graph;
-
-const graph: GraphObj = {
-    'A': {
-        x: 80,
-        y: 0,
-        neighbors: ['B', 'C']
-    },
-    'B': {
-        x: 160,
-        y: 50,
-        neighbors: ['A']
-    },
-    'C': {
-        x: 0,
-        y: 50,
-        neighbors: ['A']
-    }
-};

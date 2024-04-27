@@ -3,9 +3,9 @@ import Graph from './components/Graph';
 
 function App() {
     return (
-        <>
+        <main>
             <Graph />
-        </>
+        </main>
     )
 }
 
