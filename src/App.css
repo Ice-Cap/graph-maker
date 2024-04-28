@@ -1,3 +1,50 @@
+:root {
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    color: #fff;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+    background-color: #1f1f1f;
+}
+
+button {
+    border-radius: 8px;
+    border: 1px solid #535353;
+    padding: 0.6em 1.2em;
+    font-size: 1em;
+    font-weight: 500;
+    font-family: inherit;
+    background-color: #535353;
+    cursor: pointer;
+    transition: 0.2s;
+    color: #fff;
+}
+
+button.selected {
+    border-color: #e4e4e4;
+}
+
+button:hover {
+    background-color: #484848;
+    border-color: #e4e4e4;
+}
+
+.button-container {
+    margin-bottom: 25px;
+}
+
+.button-container button {
+    margin-right: 10px;
+}
+
 main {
     padding: 50px;
     overflow: hidden;
@@ -6,4 +53,5 @@ main {
 canvas {
     overflow: hidden;
     border: 1px solid #1f1f1f;
+    background-color: #353535;
 }
