@@ -5,18 +5,18 @@ import { GraphObj } from '../types/graphTypes.ts';
 
 const graph: GraphObj = {
     'A': {
-        x: 80,
-        y: 0,
+        x: 110,
+        y: 25,
         neighbors: ['B', 'C']
     },
     'B': {
-        x: 160,
-        y: 50,
+        x: 190,
+        y: 90,
         neighbors: ['A']
     },
     'C': {
-        x: 0,
-        y: 50,
+        x: 30,
+        y: 90,
         neighbors: ['A']
     }
 };
@@ -29,7 +29,8 @@ interface GraphState {
     start: string;
 }
 
-type ClickMode = 'add' | 'connect';
+type ClickMode = 'add' | 'connect' | 'move';
+
 /**
  * This will render a graph with nodes and edges.
  */
@@ -40,6 +41,7 @@ function Graph() {
         start: 'H'
     });
     const [clickMode, setClickMode] = useState<ClickMode>('add');
+    const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
     const [windowSize, setWindowSize] = useState<[number, number]>([window.innerWidth, window.innerHeight]);
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -55,6 +57,9 @@ function Graph() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    /**
+     * Rebuild canvas on each render.
+     */
     useEffect(() => {
         if (!canvasRef || !canvasRef.current) {
             return;
@@ -76,7 +81,14 @@ function Graph() {
          * Create graph on canvas on each render
          * to show updated state.
          */
-        new GraphMaker(ctx, state.graph, '#FFF');
+        const settings = {
+            ctx: ctx,
+            graph: state.graph,
+            fillColor: '#FFF',
+            nodeSize: 25,
+            strokeColor: '#356bc2'
+        }
+        new GraphMaker(settings);
     });
 
     /**
@@ -116,7 +128,7 @@ function Graph() {
      *
      */
     function handleDrag(e: React.MouseEvent<HTMLCanvasElement>) {
-        if (!state.nodeGrabbed || !canvasRef.current) {
+        if (!state.nodeGrabbed || !canvasRef.current || clickMode !== 'move') {
             return;
         }
 
@@ -135,10 +147,75 @@ function Graph() {
     }
 
     /**
-     * This will handle adding a new node.
-     * Or attach two nodes.
+     * This will handle a click on the canvas,
+     * based on the click mode.
      */
     function handleClick(e: React.MouseEvent<HTMLCanvasElement>) {
+        switch (clickMode) {
+            case 'add':
+                addNode(e);
+                break;
+            case 'connect':
+                connectNodes(e);
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * This handles connected two selected nodes.
+     */
+    function connectNodes(e: React.MouseEvent<HTMLCanvasElement>) {
+        if (!canvasRef.current) {
+            return;
+        }
+
+        const rect = canvasRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        /**
+         * Check which node was clicked, and set the selected node.
+         */
+        for (let node in state.graph) {
+            const nodeObj = state.graph[node];
+
+            const inNodeBounds = (x >= nodeObj.x && x <= nodeObj.x + 25 && y >= nodeObj.y && y <= nodeObj.y + 25);
+            if (inNodeBounds) {
+                setSelectedNodes((prev) => {
+                    return [...prev, node];
+                });
+                break;
+            }
+        }
+
+        /**
+         * This will handle connecting two nodes.
+         * Once the two nodes are connnected, the selected nodes will be reset.
+         */
+        setSelectedNodes((prev) => {
+            if (prev.length === 2) {
+                const [node1, node2] = prev;
+
+                setState((prev) => {
+                    const temp = cloneObject(prev);
+                    temp.graph[node1]?.neighbors.push(node2);
+                    temp.graph[node2]?.neighbors.push(node1);
+                    return temp;
+                });
+
+                return [];
+            }
+
+            return prev;
+        });
+    }
+
+    /**
+     * This will add a new node to the graph state.
+     */
+    function addNode(e: React.MouseEvent<HTMLCanvasElement>) {
         if (!canvasRef.current) {
             return;
         }
@@ -197,6 +274,7 @@ function Graph() {
 
     const addButtonClasses = clickMode === 'add' ? 'selected' : '';
     const connectButtonClasses = clickMode === 'connect' ? 'selected' : '';
+    const moveButtonClasses = clickMode === 'move' ? 'selected' : '';
     return (
         <div>
             <div className="button-container">
@@ -211,6 +289,12 @@ function Graph() {
                     onClick={() => setClickMode('connect')}
                 >
                     Connect nodes
+                </button>
+                <button
+                    className={moveButtonClasses}
+                    onClick={() => setClickMode('move')}
+                >
+                    Move nodes
                 </button>
             </div>
             <div className='flex align-center justify-center'>

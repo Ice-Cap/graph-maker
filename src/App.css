@@ -12,7 +12,7 @@
 body {
     margin: 0;
     overflow: hidden;
-    background-color: #1f1f1f;
+    background-color: #181a21;
 }
 
 button {
@@ -22,18 +22,20 @@ button {
     font-size: 1em;
     font-weight: 500;
     font-family: inherit;
-    background-color: #535353;
+    background-color: #abb0bb;
     cursor: pointer;
     transition: 0.2s;
-    color: #fff;
+    color: #000;
 }
 
 button.selected {
     border-color: #e4e4e4;
+    background-color: #27465e;
+    color: #fff;
 }
 
 button:hover {
-    background-color: #484848;
+    background-color: #3c485c;
     border-color: #e4e4e4;
 }
 
@@ -53,5 +55,5 @@ main {
 canvas {
     overflow: hidden;
     border: 1px solid #1f1f1f;
-    background-color: #353535;
+    background-color: #28282e;
 }
