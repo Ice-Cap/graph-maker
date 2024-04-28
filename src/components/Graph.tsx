@@ -44,6 +44,7 @@ function Graph() {
     const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
     const [windowSize, setWindowSize] = useState<[number, number]>([window.innerWidth, window.innerHeight]);
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const isMobile = windowSize[0] < 768;
 
     /**
      * This will update the window size state on resize.
@@ -70,6 +71,22 @@ function Graph() {
         const ctx = canvas.getContext('2d');
         if (!ctx) {
             return;
+        }
+
+        if (selectedNodes.length > 0) {
+            /**
+             * Set selected nodes to yellow
+             */
+            for (let node of selectedNodes) {
+                state.graph[node].color = '#356bc2';
+            }
+        } else {
+            /**
+             * Reset node colors
+             */
+            for (let node in state.graph) {
+                state.graph[node].color = null;
+            }
         }
 
         /**
@@ -275,6 +292,9 @@ function Graph() {
     const addButtonClasses = clickMode === 'add' ? 'selected' : '';
     const connectButtonClasses = clickMode === 'connect' ? 'selected' : '';
     const moveButtonClasses = clickMode === 'move' ? 'selected' : '';
+
+    const canvasWidth = !isMobile ? (windowSize[0] - 100) : windowSize[0] - 30;
+    const canvasHeight = !isMobile ? (windowSize[1] - 200) : windowSize[1];
     return (
         <div>
             <div className="button-container">
@@ -304,8 +324,8 @@ function Graph() {
                     onMouseUp={() => setState((prev) => ({ ...prev, nodeGrabbed: null }))}
                     onMouseMove={handleDrag}
                     ref={canvasRef}
-                    width={windowSize[0] - 100}
-                    height={windowSize[1] - 200}
+                    width={canvasWidth}
+                    height={canvasHeight}
                 />
             </div>
         </div>

@@ -26,6 +26,7 @@ button {
     cursor: pointer;
     transition: 0.2s;
     color: #000;
+    margin-bottom: 10px;
 }
 
 button.selected {
@@ -56,4 +57,11 @@ canvas {
     overflow: hidden;
     border: 1px solid #1f1f1f;
     background-color: #28282e;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    main {
+        padding: 50px 15px;
+    }
 }
