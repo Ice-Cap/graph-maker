@@ -116,7 +116,7 @@ function Graph() {
     /**
      * This will handle grabbing a node on the canvas.
      */
-    function handleGrab(e: React.MouseEvent<HTMLCanvasElement>) {
+    function handleGrab(e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) {
         if (!canvasRef.current) {
             return;
         }
@@ -125,8 +125,10 @@ function Graph() {
         /**
          * get x and y coordinates of click relative to canvas
          */
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        const clientX = 'clientX' in e ? e.clientX : e.touches[0].clientX; // Use touch or mouse event
+        const clientY = 'clientY' in e ? e.clientY : e.touches[0].clientY; // Use touch or mouse event
+        const x = clientX - rect.left;
+        const y = clientY - rect.top;
 
         /**
          * Check if click is within a node
@@ -144,14 +146,16 @@ function Graph() {
      * Dragging a node will update it's x and y coordinates.
      *
      */
-    function handleDrag(e: React.MouseEvent<HTMLCanvasElement>) {
+    function handleDrag(e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) {
         if (!state.nodeGrabbed || !canvasRef.current || clickMode !== 'move') {
             return;
         }
 
         const rect = canvasRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        const clientX = 'clientX' in e ? e.clientX : e.touches[0].clientX; // Use touch or mouse event
+        const clientY = 'clientY' in e ? e.clientY : e.touches[0].clientY; // Use touch or mouse event
+        const x = clientX - rect.left;
+        const y = clientY - rect.top;
         setState((prev) => {
             const temp = cloneObject(prev);
             if (!prev.nodeGrabbed) {
@@ -430,12 +434,16 @@ function Graph() {
                     show={editingNode !== null && clickMode === 'edit'}
                     editNode={(str: string) => editNodeTitle(str)}
                     close={() => { setEditingNode(null) }}
+                    autoFocus={!isMobile}
                 />
                 <canvas
                     onClick={handleClick}
                     onMouseDown={handleGrab}
+                    onTouchStart={handleGrab}
                     onMouseUp={() => setState((prev) => ({ ...prev, nodeGrabbed: null }))}
+                    onTouchEnd={() => setState((prev) => ({ ...prev, nodeGrabbed: null }))}
                     onMouseMove={handleDrag}
+                    onTouchMove={handleDrag}
                     ref={canvasRef}
                     width={canvasWidth}
                     height={canvasHeight}

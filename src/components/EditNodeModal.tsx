@@ -8,13 +8,14 @@ interface EditNodeModalProps {
     editNode: Function;
     close: Function;
     ref: any;
+    autoFocus: boolean;
 }
 
 const EditNodeModal = forwardRef((props: EditNodeModalProps, ref: any) => {
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        if (props.show) {
+        if (props.show && props.autoFocus) {
             inputRef.current?.focus();
         }
     });
