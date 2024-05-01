@@ -393,27 +393,27 @@ function Graph() {
                 <OptionButton
                     selected={clickMode === 'add'}
                     onClick={() => setClickMode('add')}
-                    text='Add nodes'
+                    text='Add'
                 />
                 <OptionButton
                     selected={clickMode === 'connect'}
                     onClick={() => setClickMode('connect')}
-                    text='Connect nodes'
+                    text='Connect'
                 />
                 <OptionButton
                     selected={clickMode === 'move'}
                     onClick={() => setClickMode('move')}
-                    text='Move nodes'
+                    text='Move'
                 />
                 <OptionButton
                     selected={clickMode === 'edit'}
                     onClick={() => setClickMode('edit')}
-                    text='Edit nodes'
+                    text='Edit'
                 />
                 <OptionButton
                     selected={clickMode === 'delete'}
                     onClick={() => setClickMode('delete')}
-                    text='Delete nodes'
+                    text='Delete'
                 />
                 <OptionButton
                     selected={false}
