@@ -45,6 +45,7 @@ function Graph() {
     const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
     const [windowSize, setWindowSize] = useState<[number, number]>([window.innerWidth, window.innerHeight]);
     const [editingNode, setEditingNode] = useState<string | null>(null);
+    const [showTitles, setShowTitles] = useState<boolean>(true);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const editModalRef = useRef<HTMLDivElement>(null);
     const isMobile = windowSize[0] < 768;
@@ -106,7 +107,8 @@ function Graph() {
             graph: state.graph,
             fillColor: '#FFF',
             nodeSize: 25,
-            strokeColor: '#356bc2'
+            strokeColor: '#356bc2',
+            showTitles: showTitles
         }
         new GraphMaker(settings);
     });
@@ -412,6 +414,11 @@ function Graph() {
                     selected={clickMode === 'delete'}
                     onClick={() => setClickMode('delete')}
                     text='Delete nodes'
+                />
+                <OptionButton
+                    selected={false}
+                    onClick={() => setShowTitles((prev) => !prev)}
+                    text={showTitles ? 'Hide titles' : 'Show titles'}
                 />
             </div>
             <div className='flex align-center justify-center'>

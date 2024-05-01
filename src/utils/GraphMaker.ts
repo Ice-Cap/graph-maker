@@ -9,6 +9,7 @@ interface GraphOptions {
     fontSize?: number;
     font?: string;
     fontColor?: string;
+    showTitles?: boolean;
 }
 
 class GraphMaker {
@@ -20,8 +21,9 @@ class GraphMaker {
     fontSize: number;
     font: string;
     fontColor: string;
+    showTitles: boolean;
 
-    constructor({ ctx, graph, fillColor = 'black', nodeSize = 20, strokeColor = 'black' }: GraphOptions) {
+    constructor({ ctx, graph, fillColor = 'black', nodeSize = 20, strokeColor = 'black', showTitles = false}: GraphOptions) {
         this.graph = graph;
         this.ctx = ctx;
         this.fillColor = fillColor;
@@ -31,6 +33,8 @@ class GraphMaker {
         this.fontSize = 20;
         this.font = `${this.fontSize}px Arial`;
         this.fontColor = 'white';
+
+        this.showTitles = showTitles;
 
         this.createGraph();
     }
@@ -60,13 +64,15 @@ class GraphMaker {
                 this.createSquare(nodeObj.x, nodeObj.y);
             }
 
-            if (nodeObj.title) {
-                this.createText(
-                    nodeObj.x + this.nodeSize + 5,
-                    nodeObj.y + this.nodeSize - 5,
-                    nodeObj.title
-                );
+            let title = '';
+            if (this.showTitles) {
+                title = nodeObj.title ?? node;
             }
+            this.createText(
+                nodeObj.x + this.nodeSize + 5,
+                nodeObj.y + this.nodeSize - 5,
+                title
+            );
         }
     }
 
