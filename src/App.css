@@ -9,6 +9,12 @@
     color: #fff;
 }
 
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     margin: 0;
     overflow: hidden;
@@ -57,6 +63,32 @@ canvas {
     overflow: hidden;
     border: 1px solid #1f1f1f;
     background-color: #28282e;
+}
+
+.modal {
+    display: none;
+    position: absolute;
+    z-index: 10;
+    width: fit-content;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.modal .close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 16px;
+}
+
+.modal .close:hover {
+    cursor: pointer;
+}
+
+.modal h3 {
+    margin-bottom: 10px;
 }
 
 /* Mobile */

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import GraphMaker from '../utils/GraphMaker.ts';
 import { cloneObject } from '../utils/utils';
 import { GraphObj } from '../types/graphTypes.ts';
+import EditNodeModal from './EditNodeModal.tsx';
 
 const graph: GraphObj = {
     'A': {
@@ -43,7 +44,9 @@ function Graph() {
     const [clickMode, setClickMode] = useState<ClickMode>('add');
     const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
     const [windowSize, setWindowSize] = useState<[number, number]>([window.innerWidth, window.innerHeight]);
+    const [editingNode, setEditingNode] = useState<string | null>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const editModalRef = useRef<HTMLDivElement>(null);
     const isMobile = windowSize[0] < 768;
 
     /**
@@ -179,7 +182,7 @@ function Graph() {
     }
 
     /**
-     * This will edit a node's title.
+     * This will display the edit modal for a node.
      */
     function editNode(e: React.MouseEvent<HTMLCanvasElement>) {
         if (!canvasRef.current) {
@@ -192,13 +195,27 @@ function Graph() {
 
         const node = checkInNodeBounds(x, y);
         if (node && typeof node === 'string') {
-            const title = 'test';
-            setState((prev) => {
-                const temp = cloneObject(prev);
-                temp.graph[node].title = title;
-                return temp;
-            });
+            editModalRef.current?.style.setProperty('left', `${x + rect.left + 15}px`);
+            editModalRef.current?.style.setProperty('top', `${y + rect.top - 90}px`);
+
+            setEditingNode(node);
         }
+    }
+
+    /**
+     * This will edit the title of a node.
+     */
+    function editNodeTitle(title: string): void {
+        if (!editingNode || typeof editingNode !== 'string') {
+            return;
+        }
+
+        const node = editingNode;
+        setState((prev) => {
+            const temp = cloneObject(prev);
+            temp.graph[node].title = title;
+            return temp;
+        });
     }
 
     /**
@@ -331,6 +348,11 @@ function Graph() {
 
     const canvasWidth = !isMobile ? (windowSize[0] - 100) : windowSize[0] - 30;
     const canvasHeight = !isMobile ? (windowSize[1] - 200) : windowSize[1];
+
+    let editTitle = '';
+    if (editingNode && state.graph[editingNode]?.title) {
+        editTitle = state.graph[editingNode].title ?? '';
+    }
     return (
         <div>
             <div className="button-container">
@@ -360,6 +382,15 @@ function Graph() {
                 </button>
             </div>
             <div className='flex align-center justify-center'>
+                <EditNodeModal
+                    ref={editModalRef}
+                    x={80}
+                    y={80}
+                    title={editTitle}
+                    show={editingNode !== null}
+                    editNode={(str: string) => editNodeTitle(str)}
+                    close={() => { setEditingNode(null) }}
+                />
                 <canvas
                     onClick={handleClick}
                     onMouseDown={handleGrab}
