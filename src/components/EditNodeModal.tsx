@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, useRef, useEffect } from 'react';
 
 interface EditNodeModalProps {
     x: number;
@@ -11,6 +11,14 @@ interface EditNodeModalProps {
 }
 
 const EditNodeModal = forwardRef((props: EditNodeModalProps, ref: any) => {
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (props.show) {
+            inputRef.current?.focus();
+        }
+    });
+
     const styles = {
         display: props.show ? 'block' : 'none',
         left: props.x,
@@ -21,7 +29,7 @@ const EditNodeModal = forwardRef((props: EditNodeModalProps, ref: any) => {
         <h3>Edit node</h3>
         <div className="modal-content">
             <span className="close" onClick={() => props.close()}>&times;</span>
-            <input type="text" value={props.title} onChange={(e) => props.editNode(e.target.value)} />
+            <input ref={inputRef} type="text" value={props.title} onChange={(e) => props.editNode(e.target.value)} />
         </div>
     </div>;
 });

@@ -420,7 +420,7 @@ function Graph() {
                     x={80}
                     y={80}
                     title={editTitle}
-                    show={editingNode !== null}
+                    show={editingNode !== null && clickMode === 'edit'}
                     editNode={(str: string) => editNodeTitle(str)}
                     close={() => { setEditingNode(null) }}
                 />
