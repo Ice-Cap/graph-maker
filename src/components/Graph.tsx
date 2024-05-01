@@ -29,7 +29,7 @@ interface GraphState {
     start: string;
 }
 
-type ClickMode = 'add' | 'connect' | 'move';
+type ClickMode = 'add' | 'connect' | 'move' | 'edit';
 
 /**
  * This will render a graph with nodes and edges.
@@ -126,16 +126,11 @@ function Graph() {
         /**
          * Check if click is within a node
          */
-        for (let node in state.graph) {
-            const nodeObj = state.graph[node];
-
-            const inNodeBounds = (x >= nodeObj.x && x <= nodeObj.x + 25 && y >= nodeObj.y && y <= nodeObj.y + 25);
-            if (inNodeBounds) {
-                setState((prev) => {
-                    return { ...prev, nodeGrabbed: node };
-                });
-                break;
-            }
+        const node = checkInNodeBounds(x, y);
+        if (node && typeof node === 'string') {
+            setState((prev) => {
+                return { ...prev, nodeGrabbed: node };
+            });
         }
     }
 
@@ -175,9 +170,54 @@ function Graph() {
             case 'connect':
                 connectNodes(e);
                 break;
+            case 'edit':
+                editNode(e);
+                break;
             default:
                 break;
         }
+    }
+
+    /**
+     * This will edit a node's title.
+     */
+    function editNode(e: React.MouseEvent<HTMLCanvasElement>) {
+        if (!canvasRef.current) {
+            return;
+        }
+
+        const rect = canvasRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const node = checkInNodeBounds(x, y);
+        if (node && typeof node === 'string') {
+            const title = 'test';
+            setState((prev) => {
+                const temp = cloneObject(prev);
+                temp.graph[node].title = title;
+                return temp;
+            });
+        }
+    }
+
+    /**
+     * This will check if the given x and y coordinates are
+     * with a node.
+     */
+    function checkInNodeBounds(x: number, y: number): boolean|string {
+        let nodeClicked: string|boolean = false;
+        for (let node in state.graph) {
+            const nodeObj = state.graph[node];
+
+            nodeClicked = (x >= nodeObj.x && x <= nodeObj.x + 25 && y >= nodeObj.y && y <= nodeObj.y + 25);
+            if (nodeClicked === true) {
+                nodeClicked = node;
+                break;
+            }
+        }
+
+        return nodeClicked;
     }
 
     /**
@@ -195,16 +235,11 @@ function Graph() {
         /**
          * Check which node was clicked, and set the selected node.
          */
-        for (let node in state.graph) {
-            const nodeObj = state.graph[node];
-
-            const inNodeBounds = (x >= nodeObj.x && x <= nodeObj.x + 25 && y >= nodeObj.y && y <= nodeObj.y + 25);
-            if (inNodeBounds) {
-                setSelectedNodes((prev) => {
-                    return [...prev, node];
-                });
-                break;
-            }
+        const node = checkInNodeBounds(x, y);
+        if (node && typeof node === 'string') {
+            setSelectedNodes((prev) => {
+                return [...prev, node];
+            });
         }
 
         /**
@@ -292,6 +327,7 @@ function Graph() {
     const addButtonClasses = clickMode === 'add' ? 'selected' : '';
     const connectButtonClasses = clickMode === 'connect' ? 'selected' : '';
     const moveButtonClasses = clickMode === 'move' ? 'selected' : '';
+    const editButtonClasses = clickMode === 'edit' ? 'selected' : '';
 
     const canvasWidth = !isMobile ? (windowSize[0] - 100) : windowSize[0] - 30;
     const canvasHeight = !isMobile ? (windowSize[1] - 200) : windowSize[1];
@@ -315,6 +351,12 @@ function Graph() {
                     onClick={() => setClickMode('move')}
                 >
                     Move nodes
+                </button>
+                <button
+                    className={editButtonClasses}
+                    onClick={() => setClickMode('edit')}
+                >
+                    Edit nodes
                 </button>
             </div>
             <div className='flex align-center justify-center'>
