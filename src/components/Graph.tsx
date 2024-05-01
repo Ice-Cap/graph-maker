@@ -30,7 +30,7 @@ interface GraphState {
     start: string;
 }
 
-type ClickMode = 'add' | 'connect' | 'move' | 'edit';
+type ClickMode = 'add' | 'connect' | 'move' | 'edit' | 'delete';
 
 /**
  * This will render a graph with nodes and edges.
@@ -176,8 +176,42 @@ function Graph() {
             case 'edit':
                 editNode(e);
                 break;
+            case 'delete':
+                deleteNode(e);
+                break;
             default:
                 break;
+        }
+    }
+
+    /**
+     * This will delete a node from the graph.
+     */
+    function deleteNode(e: React.MouseEvent<HTMLCanvasElement>) {
+        if (!canvasRef.current) {
+            return;
+        }
+
+        const rect = canvasRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const node = checkInNodeBounds(x, y);
+        if (node && typeof node === 'string') {
+            setState((prev) => {
+                const temp = cloneObject(prev);
+                delete temp.graph[node];
+
+                for (let key in temp.graph) {
+                    const neighbors = temp.graph[key].neighbors;
+                    const index = neighbors.indexOf(node);
+                    if (index > -1) {
+                        neighbors.splice(index, 1);
+                    }
+                }
+
+                return temp;
+            });
         }
     }
 
@@ -311,6 +345,9 @@ function Graph() {
      */
     function getNextKey(state: GraphState) {
         const keysArray = Object.keys(state.graph);
+        if (keysArray.length === 0) {
+            return 'A';
+        }
         const lastKey = keysArray[keysArray.length - 1];
         return getNextCharacter(lastKey);
     }
@@ -345,6 +382,7 @@ function Graph() {
     const connectButtonClasses = clickMode === 'connect' ? 'selected' : '';
     const moveButtonClasses = clickMode === 'move' ? 'selected' : '';
     const editButtonClasses = clickMode === 'edit' ? 'selected' : '';
+    const deleteButtonClasses = clickMode === 'delete' ? 'selected' : '';
 
     const canvasWidth = !isMobile ? (windowSize[0] - 100) : windowSize[0] - 30;
     const canvasHeight = !isMobile ? (windowSize[1] - 200) : windowSize[1];
@@ -379,6 +417,12 @@ function Graph() {
                     onClick={() => setClickMode('edit')}
                 >
                     Edit nodes
+                </button>
+                <button
+                    className={deleteButtonClasses}
+                    onClick={() => setClickMode('delete')}
+                >
+                    Delete nodes
                 </button>
             </div>
             <div className='flex align-center justify-center'>
