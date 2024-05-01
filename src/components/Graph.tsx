@@ -378,12 +378,6 @@ function Graph() {
         return current;
     }
 
-    const addButtonClasses = clickMode === 'add' ? 'selected' : '';
-    const connectButtonClasses = clickMode === 'connect' ? 'selected' : '';
-    const moveButtonClasses = clickMode === 'move' ? 'selected' : '';
-    const editButtonClasses = clickMode === 'edit' ? 'selected' : '';
-    const deleteButtonClasses = clickMode === 'delete' ? 'selected' : '';
-
     const canvasWidth = !isMobile ? (windowSize[0] - 100) : windowSize[0] - 30;
     const canvasHeight = !isMobile ? (windowSize[1] - 200) : windowSize[1];
 
@@ -394,36 +388,31 @@ function Graph() {
     return (
         <div>
             <div className="button-container">
-                <button
-                    className={addButtonClasses}
+                <OptionButton
+                    selected={clickMode === 'add'}
                     onClick={() => setClickMode('add')}
-                >
-                    Add nodes
-                </button>
-                <button
-                    className={connectButtonClasses}
+                    text='Add nodes'
+                />
+                <OptionButton
+                    selected={clickMode === 'connect'}
                     onClick={() => setClickMode('connect')}
-                >
-                    Connect nodes
-                </button>
-                <button
-                    className={moveButtonClasses}
+                    text='Connect nodes'
+                />
+                <OptionButton
+                    selected={clickMode === 'move'}
                     onClick={() => setClickMode('move')}
-                >
-                    Move nodes
-                </button>
-                <button
-                    className={editButtonClasses}
+                    text='Move nodes'
+                />
+                <OptionButton
+                    selected={clickMode === 'edit'}
                     onClick={() => setClickMode('edit')}
-                >
-                    Edit nodes
-                </button>
-                <button
-                    className={deleteButtonClasses}
+                    text='Edit nodes'
+                />
+                <OptionButton
+                    selected={clickMode === 'delete'}
                     onClick={() => setClickMode('delete')}
-                >
-                    Delete nodes
-                </button>
+                    text='Delete nodes'
+                />
             </div>
             <div className='flex align-center justify-center'>
                 <EditNodeModal
@@ -446,6 +435,22 @@ function Graph() {
                 />
             </div>
         </div>
+    );
+}
+
+interface OptionButtonProps {
+    selected: boolean;
+    onClick: () => void;
+    text: string;
+}
+function OptionButton(props: OptionButtonProps) {
+    return (
+        <button
+            className={props.selected ? 'selected' : ''}
+            onClick={props.onClick}
+        >
+            {props.text}
+        </button>
     );
 }
 
